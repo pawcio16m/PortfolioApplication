@@ -9,7 +9,7 @@ import backendPackage.ResultData;
 public class ResultsTable extends JScrollPane
 {
     private static final long serialVersionUID = 1L;
-    private static final String[] COLUMN_NAMES = {"Strategy", "Result"};
+    private static final String[] COLUMN_NAMES = {"Strategy", "Reletive Performance of Portfolio", "Is energy-entropy portfolio?"};
      
     private static DefaultTableModel tableModel = new DefaultTableModel();
     private static JTable resultTable = new JTable(tableModel);
@@ -27,7 +27,7 @@ public class ResultsTable extends JScrollPane
         clearAllRows();   
         for(ResultData result : results)
         {
-            tableModel.addRow(new Object[]{result.strategy.toString(), result.value});
+            tableModel.addRow(new Object[]{result.strategy.toString(), result.value, (result.isEnergyEntropyPortfolio ? "YES" : "NO")});
         }      
     }
     

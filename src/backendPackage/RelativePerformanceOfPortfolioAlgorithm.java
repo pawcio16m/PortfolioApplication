@@ -2,178 +2,133 @@ package backendPackage;
 
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.stream.DoubleStream;
 
 public class RelativePerformanceOfPortfolioAlgorithm
 {
     private double[] actualValue;
     private double[] returnOfInvestment;
     private double[] volatilityRate;
+    private double[] weightOfStock;
+    
     private int numberOfSteps;
-    protected int sizeOfPortfolio;
-    private double executionTime;
-    private double[][] weightOfStocksInPortfolio = new double[numberOfSteps][sizeOfPortfolio];
-    private double[][] marketWeights = new double[numberOfSteps][sizeOfPortfolio];
-    
-    StockPriceSimulator simulator;
-    
-    RelativePerformanceOfPortfolioAlgorithm( double[] actualValue, double[] returnOfInvestment, double[] volatilityRate,
-            int numberOfSteps, int sizeOfPortfolio, double executionTime) {
+    private int sizeOfPortfolio;
+
+    private Vector<StockPriceSimulator> stockPriceSimulators;
+    private double[][] weightOfStocksInPortfolio;
+    private double[][] marketWeights;
+        
+    RelativePerformanceOfPortfolioAlgorithm( double[] actualValue, double[] returnOfInvestment, double[] volatilityRate, double[] weightOfStock,
+            int numberOfSteps, int sizeOfPortfolio) {
         this.actualValue = actualValue;
         this.returnOfInvestment = returnOfInvestment;
         this.volatilityRate = volatilityRate;
+        this.weightOfStock = weightOfStock;
         this.numberOfSteps=numberOfSteps;
         this.sizeOfPortfolio=sizeOfPortfolio;
-        this.executionTime=executionTime;
+        
+        stockPriceSimulators = new Vector<StockPriceSimulator>(sizeOfPortfolio); 
+        weightOfStocksInPortfolio = new double[numberOfSteps][sizeOfPortfolio];
+        marketWeights = new double[numberOfSteps][sizeOfPortfolio];
     }
+    
+    public double calculateRetalivePerformaneOfPortfolioForStrategy(Strategy strategy) {
+        fillWeightOfStocksInPortfolio(strategy);
+        fillMarketWeightOfPortfolio();
+        Vector<AlgorithmOutput> output = new Vector<AlgorithmOutput>(numberOfSteps);
 
-
-    public double[][] returnStockPrices(){
-        double[][] portfolioStockPrices=new double[numberOfSteps][sizeOfPortfolio];
-        StockPriceSimulator[] simulators=new StockPriceSimulator[sizeOfPortfolio];
-        for(int i=1;i<=sizeOfPortfolio;i++){
-            StockPriceSimulator sim =new StockPriceSimulator(actualValue[i],returnOfInvestment[i],volatilityRate[i]);
-            simulators[i]=sim;
+        //TODO make something with last element add this if to prevent exception
+        for (int step = 0; step < numberOfSteps - 1; ++step) {
+            System.out.println("Results for time = "+step);
+            
+            AlgorithmOutput element = new AlgorithmOutput();
+            element.control = calculateControl(step);
+            element.energy = calculateEnergy(step);
+            element.relativeEntropy = calculateRelativeEntropyOfPortfolio(step);
+            element.relativePerformance = element.control + element.energy + element.relativeEntropy;
+            output.add(element);
+            //TODO save to File
+            System.out.println(element.toString());
         }
-
-        for(int i=1;i<=numberOfSteps;i++){
-          for(int j=1;j<=sizeOfPortfolio;j++){
-              portfolioStockPrices[i][j] = simulators[j].getStockPrice(i, numberOfSteps);
-          }
-        }
-        return portfolioStockPrices;
+        //return output.lastElement().relativePerformance; //TODO make something with last element to make it work again!
+        return 0.0;
     }
-    private double[][] stockPrices=returnStockPrices();
+    
+    private void fillWeightOfStocksInPortfolio(Strategy strategy){
+        switch(strategy){
+            case EQUAL:
+                for(double[] row : weightOfStocksInPortfolio) {
+                    Arrays.fill(row, 1 / sizeOfPortfolio);
+                }
+                break;
+            case CONSTANT:
+                for(double[] row : weightOfStocksInPortfolio) {
+                    for(int stockIndex = 0; stockIndex < sizeOfPortfolio; ++ stockIndex) {
+                        row[stockIndex] = weightOfStock[stockIndex] / 100; //convert from percent to factor
+                        ++stockIndex;                    
+                    }
+                }
+                break;
+            default:
+                System.err.println("Unkonwn strategy!");
+                break;
+        }
+    }
 
     private void fillMarketWeightOfPortfolio() {
-        double[] sumOfStockPrices=new double[sizeOfPortfolio];
-        for (int j = 1; j <= sizeOfPortfolio; j++) {
-            sumOfStockPrices[j] = 0;
-        }
-        for (int i = 1; i <= numberOfSteps; i++){
-            for (int j = 1; j <= sizeOfPortfolio; j++) {
-                sumOfStockPrices[i] = +stockPrices[i][j];
+        preapareStockPriceSimulators();
+        for (int step = 0; step < numberOfSteps; ++step){
+            double[] stockPricesForPortfolio = new double[sizeOfPortfolio];
+            for(int stockIndex = 0; stockIndex < sizeOfPortfolio; ++stockIndex) {
+                stockPricesForPortfolio[stockIndex] = stockPriceSimulators.get(stockIndex).getStockPrice(step, numberOfSteps);
             }
-        }
-        for(int i=1;i<=numberOfSteps;i++){
-            for(int j=1;j<=sizeOfPortfolio;j++){
-               marketWeights[i][j] = stockPrices[i][j]/sumOfStockPrices[j];
-            }
+            double sumOfStockPrices = DoubleStream.of(stockPricesForPortfolio).sum();
+            for(int stockIndex = 0; stockIndex < sizeOfPortfolio; ++stockIndex) {
+                double weight = stockPricesForPortfolio[stockIndex] / sumOfStockPrices;
+                marketWeights[step][stockIndex] = weight;
+                System.out.println("Weight for stock index[" +stockIndex+"] in time("+step+") = "+weight);
+             }
         }
     }
 
+    private void preapareStockPriceSimulators() {
+        for(int stockIndex = 0 ; stockIndex< sizeOfPortfolio; ++stockIndex){
+            stockPriceSimulators.add(new StockPriceSimulator(actualValue[stockIndex], returnOfInvestment[stockIndex], volatilityRate[stockIndex]));
+        }
+    }
 
     private double calculateEnergy(int time){//po czasie i rozmiarze, to time to nie time tylko ktory krok, time=numberofsteps to dostaniemy dla T
-        double energy=0;
-        double[] sum1=new double[time];
-        for(int i=1;i<=time;i++){
-            sum1[i]=0;
+        double energy = 0;
+        double sumOfWeight = 0;
+
+        for(int stockIndex = 0 ; stockIndex< sizeOfPortfolio; ++stockIndex){
+            //TODO time+1 may get element not from array!!!!!
+            sumOfWeight += weightOfStocksInPortfolio[time][stockIndex]*(marketWeights[time+1][stockIndex]/marketWeights[time][stockIndex]);
         }
-        for(int i=0;i<=time-1;i++){
-            for(int j=1;j<=sizeOfPortfolio;j++){
-               sum1[i] = +weightOfStocksInPortfolio[i][j]*(marketWeights[i+1][j]/marketWeights[i][j]);
-            }
-        }
-        for(int i=0;i<=time;i++){
-            energy=+(Math.log(sum1[i])-sum1[i]);
-        }
+        energy += Math.log(sumOfWeight) - sumOfWeight;        
         return energy;
     }
 
     private double calculateControl(int time){
-        double control=0;
-        double[] relativeEntropy=new double[time];
-        double[] relativeEntropySameTime=new double[time];
-        for(int i=1;i<=time;i++){
-            relativeEntropy[i]=0;
-        }
-        for(int i=0;i<=time-1;i++){
-            for(int j=1;j<=sizeOfPortfolio;j++){
-                relativeEntropy[i] = +weightOfStocksInPortfolio[i][j]*Math.log(weightOfStocksInPortfolio[i][j]/marketWeights[i+1][j]);
-            }
-        }
-        for(int i=1;i<=time;i++){
-            relativeEntropySameTime[i]=0;
-        }
-        for(int i=0;i<=time;i++){
-            for(int j=1;j<=sizeOfPortfolio;j++){
-                relativeEntropySameTime[i] = +weightOfStocksInPortfolio[i][j]*Math.log(weightOfStocksInPortfolio[i][j]/marketWeights[i][j]);
-            }
-        }
-        for(int i=0;i<=time-1;i++){
-            control=+(relativeEntropySameTime[i+1]+relativeEntropy[i]);
+        double control = 0;
+        double relativeEntropy = 0;
+        //what does it mean same time?
+        double relativeEntropySameTime = 0;
+
+        for(int stockIndex = 0 ; stockIndex< sizeOfPortfolio; ++stockIndex){
+            //TODO time+1 may get element not from array!!!!!
+            relativeEntropy += weightOfStocksInPortfolio[time][stockIndex]*Math.log(weightOfStocksInPortfolio[time][stockIndex]/marketWeights[time+1][stockIndex]);
+            relativeEntropySameTime += weightOfStocksInPortfolio[time+1][stockIndex]*Math.log(weightOfStocksInPortfolio[time+1][stockIndex]/marketWeights[time+1][stockIndex]);
+            control += relativeEntropySameTime + relativeEntropy;
         }
         return control;
     }
 
     private double calculateRelativeEntropyOfPortfolio(int time){
-        double relativeEntopyOfPortfolio=0;
-        for(int j=1;j<=numberOfSteps;j++){
-                relativeEntopyOfPortfolio = +(weightOfStocksInPortfolio[time][j]*Math.log(weightOfStocksInPortfolio[time][j]/marketWeights[time][j])-weightOfStocksInPortfolio[0][j]*Math.log(weightOfStocksInPortfolio[0][j]/marketWeights[0][j]));
+        double relativeEntopyOfPortfolio = 0;
+        for (int stockIndex = 0 ; stockIndex< sizeOfPortfolio; ++stockIndex) {
+            relativeEntopyOfPortfolio += (weightOfStocksInPortfolio[time][stockIndex]*Math.log(weightOfStocksInPortfolio[time][stockIndex]/marketWeights[time][stockIndex])-weightOfStocksInPortfolio[0][stockIndex]*Math.log(weightOfStocksInPortfolio[0][stockIndex]/marketWeights[0][stockIndex]));
         }
         return  relativeEntopyOfPortfolio;
     }
-
-    private void fillWeightOfStocksInPortfolio(Strategy strategy){
-        switch(strategy){
-            case EQUAL:
-                double[] equalWeight = new double[sizeOfPortfolio];
-                for(double[] row : weightOfStocksInPortfolio) {
-                    Arrays.fill(row, 1 / sizeOfPortfolio);
-                }
-                return;
-            case CONSTANT:
-                return;
-            default:
-                break;
-        }
-    }
-//element klasy zeszyt
-    public double calulateRetalivePerformaneOfPortfolioForStrategy(Strategy strategy){
-        fillWeightOfStocksInPortfolio(strategy);
-        fillMarketWeightOfPortfolio();
-        Vector<AlgorithmOutput> output = new Vector<AlgorithmOutput>(numberOfSteps);
-
-        int step = 0;
-        for (AlgorithmOutput element : output) {
-            element.control = calculateControl(step);
-            element.energy = calculateEnergy(step);
-            element.relativeEntropy = calculateRelativeEntropyOfPortfolio(step);
-            element.relativePerformance = element.control + element.energy + element.relativeEntropy;
-
-                    //TODO zapis do pliku
-
-            ++step;
-        }
-
-
-        return output.lastElement().relativePerformance;
-    }
-
-
-    public double doubleGetValue() // mozna zmieic nazwe ta funkcja bd zwracac ta wartosc w relative cos tam cos tam w zalezosci od strategi
-    {
-        return 0;
-    }
-
-    public double getValueToChart() //jakosc trzeba sie zastanowic nad zwracaniem wektora na potrzeby malowania  powino zwracac wektor albo cos takiego
-    {
-        return 0;
-    }
-
-    private double calculate() //ta funkcja bd zwracac wartosc dla chwili t
-    {
-
-        return 0;
-    };
-    //TODO pasuje zrobic prywatne funckje ktore bd liczyc te wszystkie entropie, kontrole itp w zaleznosci od t.
-
-    //TODO pasuje zrobic jakas funkcje export ktora zmieni ten wektor np w plik xls(excel) ale to nie wiem czy w tej klasie
-
-    
-    
-    public double calculateReleativePerfomanceOfPortfolioForStrategy(Strategy strategy)
-    {
-        return 0.0;
-    }
-
 }

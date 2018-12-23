@@ -33,7 +33,6 @@ public class StockPriceSimulator {
             }
             sumOfPrices=sumOfPrices+price;
         }
-        double stockPrice =sumOfPrices/NUMBER_OF_SIMULATION;
-        return stockPrice;
+        return sumOfPrices / NUMBER_OF_SIMULATION;
     }
 }

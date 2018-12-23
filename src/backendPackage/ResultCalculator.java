@@ -21,6 +21,7 @@ public class ResultCalculator implements IResultCalculator
         double[] actualValue = new double[stockDataSize];
         double[] returnOfInvestment  = new double[stockDataSize];
         double[] volatilityRate = new double[stockDataSize];
+        double[] weightOfStocks = new double[stockDataSize];
         
         int stockDataIndex = 0;
         for (StockData stockData : data)
@@ -28,14 +29,15 @@ public class ResultCalculator implements IResultCalculator
             actualValue[stockDataIndex] = stockData.actualValue;
             returnOfInvestment[stockDataIndex] = stockData.returnOfInvestment;
             volatilityRate[stockDataIndex] = stockData.volatilityRate;
+            weightOfStocks[stockDataIndex] = stockData.weightOfStock;
             System.out.println(stockData.toString());
         }
         
-        algorithm = new RelativePerformanceOfPortfolioAlgorithm(actualValue, returnOfInvestment, volatilityRate, numberOfSteps , stockDataSize, timeOfInvestment);
+        algorithm = new RelativePerformanceOfPortfolioAlgorithm(actualValue, returnOfInvestment, volatilityRate, weightOfStocks, numberOfSteps , stockDataSize);
                 
-        Vector<ResultData> results = new Vector<ResultData>(3);
-        results.add(new ResultData(Strategy.EQUAL, algorithm.calculateReleativePerfomanceOfPortfolioForStrategy(Strategy.EQUAL)));
-        results.add(new ResultData(Strategy.CONSTANT, algorithm.calculateReleativePerfomanceOfPortfolioForStrategy(Strategy.CONSTANT)));
+        Vector<ResultData> results = new Vector<ResultData>(2);
+        results.add(new ResultData(Strategy.EQUAL, algorithm.calculateRetalivePerformaneOfPortfolioForStrategy(Strategy.EQUAL), true));
+     //   results.add(new ResultData(Strategy.CONSTANT, algorithm.calculateRetalivePerformaneOfPortfolioForStrategy(Strategy.CONSTANT), false));
         
         System.out.println("Results");
         for (ResultData result : results)
