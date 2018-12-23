@@ -1,7 +1,6 @@
 package mainPackage;
 
 import java.awt.EventQueue;
-
 import guiPackage.MainWindow;
 
 public class MainApplication
@@ -19,5 +18,4 @@ public class MainApplication
             }
         });
     }
-
 }

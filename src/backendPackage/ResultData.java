@@ -1,4 +1,4 @@
-package frontendPackage;
+package backendPackage;
 
 public class ResultData
 {

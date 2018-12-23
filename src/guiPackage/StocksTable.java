@@ -1,36 +1,29 @@
 package guiPackage;
 
-import java.awt.Dimension;
 import java.util.Vector;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-
-import frontendPackage.StockData;
+import backendPackage.StockData;
 
 public class StocksTable extends JScrollPane
 {
     private static final long serialVersionUID = 1L;
-    private static final String[] COLUMN_NAMES = {"Stock Name", "Actual Value", "Return Of Investment", "Volatibility Rate"};
-    private static final int WIDTH = 400;
-    private static final int HEIGHT = 100;
+    private static final String[] COLUMN_NAMES = {"Stock Name", "Actual Value", "Return Of Investment", "Volatility Rate", "Weight Of Stock"};
     
     private static DefaultTableModel tableModel = new DefaultTableModel();
     private static JTable stockTable = new JTable(tableModel);
     
     public StocksTable()
     {
-        super(stockTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
+        super(stockTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);        
         tableModel.setColumnIdentifiers(COLUMN_NAMES);
-   //     stockTable.setPreferredScrollableViewportSize(new Dimension(WIDTH, HEIGHT));
         stockTable.setFillsViewportHeight(true); 
     }
     
-    public void addRowTable(String stockName, double actualValue, double returnOfInvestment, double volatibilityRate)
+    public void addRowTable(String stockName, double actualValue, double returnOfInvestment, double volatilityRate, double weightOfStock)
     {
-        tableModel.addRow(new Object[]{stockName, actualValue, returnOfInvestment, volatibilityRate});
+        tableModel.addRow(new Object[]{stockName, actualValue, returnOfInvestment, volatilityRate, weightOfStock});
     }
     
     public boolean removeRowTable()
@@ -44,22 +37,25 @@ public class StocksTable extends JScrollPane
         return false;
     }
     
-    public Vector<StockData> getData()
+    public Vector<StockData> getData() throws NumberFormatException
     {
         int stockDataSize = tableModel.getRowCount();
         Vector<StockData> stockData = new Vector<StockData>(stockDataSize);
         
+        double sumOfWeight = 0.0;
         for(int rowNumber = 0; rowNumber < stockDataSize; ++rowNumber)
         {
             String stockName = (String) tableModel.getValueAt(rowNumber, 0);
             double actualValue = (double) tableModel.getValueAt(rowNumber, 1);
             double returnOfInvestment = (double) tableModel.getValueAt(rowNumber, 2);
-            double volatibilityRate = (double) tableModel.getValueAt(rowNumber, 3);
+            double volatilityRate = (double) tableModel.getValueAt(rowNumber, 3);
+            double weightOfStock = (double) tableModel.getValueAt(rowNumber, 4);
+            sumOfWeight += weightOfStock;
             
-            StockData stock = new StockData(stockName, actualValue, returnOfInvestment, volatibilityRate);
-          //  System.out.println(stock.toString());
+            StockData stock = new StockData(stockName, actualValue, returnOfInvestment, volatilityRate, weightOfStock);
             stockData.add(stock);
         }
+        if (sumOfWeight < 99.0 || sumOfWeight > 100.0) throw new NumberFormatException();
         return stockData;        
     }
 }

@@ -1,6 +1,5 @@
 package guiPackage;
 
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,40 +10,39 @@ import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JTextField;
-import frontendPackage.IResultCalculator;
-import frontendPackage.ResultCalculator;
-import frontendPackage.ResultData;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import javax.swing.SwingConstants;
+import backendPackage.IResultCalculator;
+import backendPackage.ResultCalculator;
+import backendPackage.ResultData;
 
 public class MainWindow
 {
-    private JFrame frame;
-    private JPanel mainPane;
     private static final String APP_NAME = "Portfolio calculation";
+
+    private JFrame frame;
     
     //Stock Form
     private JLabel stockNameDisplay = new JLabel("Stock Name");
     private JTextField stockNameValue = new JTextField("StockName");
     
-    private JLabel actualPriceDisplay = new JLabel("Actual Price");
+    private JLabel actualPriceDisplay = new JLabel("Actual Price [$]");
     private JTextField actualPriceValue = new JTextField("10.5");
     
-    private JLabel returnOfInvestmentDisplay = new JLabel("Return of Investment");
+    private JLabel returnOfInvestmentDisplay = new JLabel("Return of Investment [%]");
     private JTextField returnOfInvestmentValue = new JTextField("5.5");
     
-    private JLabel volatibilityRateDisplay = new JLabel("Volability Rate");
-    private JTextField volatibilityRateValue = new JTextField("2");
+    private JLabel volatilityRateDisplay = new JLabel("Volatility Rate [%]");
+    private JTextField volatilityRateValue = new JTextField("2");
     
-    private JLabel timeOfInvestmentDisplay = new JLabel("Time of investment");
+    private JLabel weightOfStockDisplay = new JLabel("Weight of Stock [%]");
+    private JTextField weightOfStockValue = new JTextField("25");
+    
+    private JLabel timeOfInvestmentDisplay = new JLabel("Time of investment [year]");
     private JTextField timeOfInvestmentValue = new JTextField("5");
     
-    private static final int FORM_WIDTH = 180;
-    private static final int FORM_HEIGHT = 20;
-    
+  
     //Buttons
     private JButton fillDataButton = new AddStockButton();
     private JButton calculateButton = new CalculateButton();
@@ -55,16 +53,17 @@ public class MainWindow
     private ResultsTable resultsData;
     
     //Panels
-    private JPanel stockName;
-    private JPanel actualPrice;
-    private JPanel returnOfInvestment;
-    private JPanel volatibilityRate;
-    private JPanel timeOfInvestment;
-    private JPanel stockFormPanel;
-    private JPanel stocksPanel;
-    private JPanel dataPanel;
-    private JPanel resultsPanel;
-    private JPanel chartPanel;
+    private JPanel stockName = new JPanel();
+    private JPanel actualPrice = new JPanel();
+    private JPanel returnOfInvestment = new JPanel();
+    private JPanel volatilityRate = new JPanel();
+    private JPanel weightOfStock = new JPanel();
+    private JPanel timeOfInvestment = new JPanel();
+    private JPanel stockFormPanel = new JPanel();
+    private JPanel stocksPanel = new JPanel();
+    private JPanel dataPanel = new JPanel();
+    private JPanel resultsPanel = new JPanel();
+    private JPanel chartPanel = new JPanel();
     
     //Algorithm
     private IResultCalculator resultCalculator = new ResultCalculator();
@@ -95,11 +94,9 @@ public class MainWindow
         preparePanels();
          
         //Layout
-        mainPane = new JPanel();
         frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
         
         frame.getContentPane().add(dataPanel);
-       // frame.getContentPane().add(stocksPanel);
         frame.getContentPane().add(resultsPanel);
         frame.getContentPane().add(chartPanel);
        
@@ -110,88 +107,74 @@ public class MainWindow
 
     private void prepareStockFormPanel()
     {   
-        stockName = new JPanel();
         stockName.setLayout(new BoxLayout(stockName, BoxLayout.X_AXIS));
         stockNameDisplay.setFont(new Font("Tahoma", Font.PLAIN, 16));
         stockName.add(stockNameDisplay);
         stockNameValue.setHorizontalAlignment(SwingConstants.CENTER);
         stockNameValue.setFont(new Font("Tahoma", Font.PLAIN, 15));
         stockName.add(stockNameValue);
-     //   stockName.setSize(new Dimension(FORM_WIDTH, FORM_HEIGHT));
         
-        actualPrice = new JPanel();
         actualPrice.setLayout(new BoxLayout(actualPrice, BoxLayout.X_AXIS));
         actualPriceDisplay.setFont(new Font("Tahoma", Font.PLAIN, 16));
         actualPrice.add(actualPriceDisplay);
         actualPriceValue.setFont(new Font("Tahoma", Font.PLAIN, 15));
         actualPriceValue.setHorizontalAlignment(SwingConstants.CENTER);
         actualPrice.add(actualPriceValue);
-     //   actualPrice.setPreferredSize(new Dimension(FORM_WIDTH, FORM_HEIGHT));
         
-        returnOfInvestment = new JPanel();
         returnOfInvestment.setLayout(new BoxLayout(returnOfInvestment, BoxLayout.X_AXIS));
         returnOfInvestmentDisplay.setFont(new Font("Tahoma", Font.PLAIN, 16));
         returnOfInvestment.add(returnOfInvestmentDisplay);
         returnOfInvestmentValue.setFont(new Font("Tahoma", Font.PLAIN, 15));
         returnOfInvestmentValue.setHorizontalAlignment(SwingConstants.CENTER);
         returnOfInvestment.add(returnOfInvestmentValue);
-     //   returnOfInvestment.setPreferredSize(new Dimension(FORM_WIDTH, FORM_HEIGHT));      
 
-        volatibilityRate = new JPanel();
-        volatibilityRate.setLayout(new BoxLayout(volatibilityRate, BoxLayout.X_AXIS));
-        volatibilityRateDisplay.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        volatibilityRate.add(volatibilityRateDisplay);
-        volatibilityRateValue.setHorizontalAlignment(SwingConstants.CENTER);
-        volatibilityRateValue.setFont(new Font("Tahoma", Font.PLAIN, 15));
-        volatibilityRate.add(volatibilityRateValue);
-  //      volatibilityRate.setPreferredSize(new Dimension(FORM_WIDTH, FORM_HEIGHT));            
+        volatilityRate.setLayout(new BoxLayout(volatilityRate, BoxLayout.X_AXIS));
+        volatilityRateDisplay.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        volatilityRate.add(volatilityRateDisplay);
+        volatilityRateValue.setHorizontalAlignment(SwingConstants.CENTER);
+        volatilityRateValue.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        volatilityRate.add(volatilityRateValue);
+        
+        weightOfStock.setLayout(new BoxLayout(weightOfStock, BoxLayout.X_AXIS));
+        weightOfStockDisplay.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        weightOfStock.add(weightOfStockDisplay);
+        weightOfStockValue.setHorizontalAlignment(SwingConstants.CENTER);
+        weightOfStockValue.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        weightOfStock.add(weightOfStockValue);
 
-        timeOfInvestment = new JPanel();
         timeOfInvestment.setLayout(new BoxLayout(timeOfInvestment, BoxLayout.X_AXIS));
         timeOfInvestmentDisplay.setFont(new Font("Tahoma", Font.PLAIN, 16));
         timeOfInvestment.add(timeOfInvestmentDisplay);
         timeOfInvestmentValue.setHorizontalAlignment(SwingConstants.CENTER);
         timeOfInvestmentValue.setFont(new Font("Tahoma", Font.PLAIN, 15));
         timeOfInvestment.add(timeOfInvestmentValue);
-  //      timeOfInvestment.setPreferredSize(new Dimension(FORM_WIDTH, FORM_HEIGHT));
         
         stockFormPanel.setLayout(new BoxLayout(stockFormPanel, BoxLayout.Y_AXIS));
         stockFormPanel.add(stockName);
         stockFormPanel.add(actualPrice);
         stockFormPanel.add(returnOfInvestment);
-        stockFormPanel.add(volatibilityRate);
+        stockFormPanel.add(volatilityRate);
+        stockFormPanel.add(weightOfStock);
         stockFormPanel.add(timeOfInvestment);
         stockFormPanel.add(fillDataButton);
         stockFormPanel.add(deleteStockButton);         
-     //   stockFormPanel.setPreferredSize(new Dimension(FORM_WIDTH, FORM_HEIGHT*7));
-
-
     }
     
     private void preparePanels()
     {
-        stockFormPanel = new JPanel();
         prepareStockFormPanel();        
         
-        stocksPanel = new JPanel();
         FlowLayout flowLayout = (FlowLayout) stocksPanel.getLayout();
         flowLayout.setAlignment(FlowLayout.RIGHT);
         stocksPanel.add(stocksData);
         
-        dataPanel = new JPanel();
         dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.X_AXIS));
         dataPanel.add(stockFormPanel);
         dataPanel.add(stocksPanel);
-      //  dataPanel.setSize(new Dimension(FORM_WIDTH*5, FORM_HEIGHT*18));
         
-        resultsPanel = new JPanel();
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
-        calculateButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        calculateButton.setHorizontalAlignment(SwingConstants.LEFT);
         resultsPanel.add(calculateButton);
-        resultsPanel.add(resultsData);
-        
-        chartPanel = new JPanel(); 
+        resultsPanel.add(resultsData);        
     }
     
     
@@ -205,7 +188,8 @@ public class MainWindow
                     stocksData.addRowTable(stockNameValue.getText(), 
                                            Double.parseDouble(actualPriceValue.getText()),
                                            Double.parseDouble(returnOfInvestmentValue.getText()),
-                                           Double.parseDouble(volatibilityRateValue.getText()));     
+                                           Double.parseDouble(volatilityRateValue.getText()),
+                                           Double.parseDouble(weightOfStockValue.getText()));     
                 }
                 catch (NumberFormatException exception)
                 {
@@ -234,21 +218,22 @@ public class MainWindow
             public void actionPerformed(ActionEvent e)
             {
                 //This is a main part when algorithm is launch and results are printed
-                if (stocksData.getData().size() > 0)
-                {
-                    try
-                    { 
+                try
+                { 
+                    if (stocksData.getData().size() > 0)
+                    {    
                         Vector<ResultData> results = resultCalculator.calculate(stocksData.getData(), Integer.parseInt(timeOfInvestmentValue.getText()));                
                         resultsData.fillResults(results);
-                        return;
-   
                     }
-                    catch (NumberFormatException exception)
+                    else
                     {
-                        System.err.println("Invalid data format - cannot calculate!");
-                    } 
+                        System.err.println("Input data not filled - cannot calculate!");     
+                    }
                 }
-                System.err.println("Input data not filled - cannot calculate!");               
+                catch (NumberFormatException exception)
+                {
+                    System.err.println("Invalid data format - cannot calculate!");
+                } 
             }
         });
     }    
