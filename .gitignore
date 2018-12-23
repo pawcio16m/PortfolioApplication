@@ -1,0 +1,6 @@
+# Add here files or folders which you want not to stage
+
+.classpath
+.project
+.settings/
+bin/
