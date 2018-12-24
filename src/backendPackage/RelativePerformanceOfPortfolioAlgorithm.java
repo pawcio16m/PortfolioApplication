@@ -14,10 +14,15 @@ public class RelativePerformanceOfPortfolioAlgorithm
     private int numberOfSteps;
     private int sizeOfPortfolio;
 
+
     private Vector<StockPriceSimulator> stockPriceSimulators;
     private double[][] weightOfStocksInPortfolio;
     private double[][] marketWeights;
         
+    private IFileHandler fileHandler;
+ 
+    public boolean isPortfolioEnergyEntropy;
+    
     RelativePerformanceOfPortfolioAlgorithm( double[] actualValue, double[] returnOfInvestment, double[] volatilityRate, double[] weightOfStock,
             int numberOfSteps, int sizeOfPortfolio) {
         this.actualValue = actualValue;
@@ -30,12 +35,18 @@ public class RelativePerformanceOfPortfolioAlgorithm
         stockPriceSimulators = new Vector<StockPriceSimulator>(sizeOfPortfolio); 
         weightOfStocksInPortfolio = new double[numberOfSteps][sizeOfPortfolio];
         marketWeights = new double[numberOfSteps][sizeOfPortfolio];
+        
+        fileHandler = new CsvFileHandler();
+        
+        isPortfolioEnergyEntropy = false;
     }
     
     public double calculateRetalivePerformaneOfPortfolioForStrategy(Strategy strategy) {
         fillWeightOfStocksInPortfolio(strategy);
         fillMarketWeightOfPortfolio();
         Vector<AlgorithmOutput> output = new Vector<AlgorithmOutput>(numberOfSteps);
+        fileHandler.createFile(strategy.toString());
+
 
         //TODO make something with last element add this if to prevent exception
         System.out.println("time\t| energy\t| control\t| relative entropy\t| relative performance");
@@ -46,10 +57,12 @@ public class RelativePerformanceOfPortfolioAlgorithm
             element.relativeEntropy = calculateRelativeEntropyOfPortfolio(step);
             element.relativePerformance = element.control + element.energy + element.relativeEntropy;
             output.add(element);
+            fileHandler.addRecord(element, step);
             //TODO save to File
-            System.out.println(step+"\t|"+element.toString());
+            System.out.println(step+"\t| "+element.toString());
         }
         //return output.lastElement().relativePerformance; //TODO make something with last element to make it work again!
+        fileHandler.closeFile();
         return 0.0;
     }
     

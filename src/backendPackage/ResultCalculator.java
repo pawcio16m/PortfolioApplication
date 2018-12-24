@@ -5,6 +5,7 @@ import java.util.Vector;
 public class ResultCalculator implements IResultCalculator
 {
     private static final int WEEKS_IN_YEAR = 52;
+    private static final int SUPPORTED_NUM_OF_STRATEGY = 2;
     
     RelativePerformanceOfPortfolioAlgorithm algorithm;
 
@@ -35,12 +36,13 @@ public class ResultCalculator implements IResultCalculator
         }
         
         algorithm = new RelativePerformanceOfPortfolioAlgorithm(actualValue, returnOfInvestment, volatilityRate, weightOfStocks, numberOfSteps , stockDataSize);
-                
-        Vector<ResultData> results = new Vector<ResultData>(2);
-        results.add(new ResultData(Strategy.EQUAL, algorithm.calculateRetalivePerformaneOfPortfolioForStrategy(Strategy.EQUAL), true));
-     //   results.add(new ResultData(Strategy.CONSTANT, algorithm.calculateRetalivePerformaneOfPortfolioForStrategy(Strategy.CONSTANT), false));
+       
+        //Here you can add strategy to get results
+        Vector<ResultData> results = new Vector<ResultData>(SUPPORTED_NUM_OF_STRATEGY);
+        results.add(new ResultData(Strategy.EQUAL, algorithm.calculateRetalivePerformaneOfPortfolioForStrategy(Strategy.EQUAL), algorithm.isPortfolioEnergyEntropy));
+     //   results.add(new ResultData(Strategy.CONSTANT, algorithm.calculateRetalivePerformaneOfPortfolioForStrategy(Strategy.CONSTANT), algorithm.isPortfolioEnergyEntropy));
         
-        System.out.println("Results");
+        System.out.println("Results for supported strategy");
         for (ResultData result : results)
         {
             System.out.println(result.toString());

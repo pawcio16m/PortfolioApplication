@@ -1,5 +1,8 @@
 package backendPackage;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class AlgorithmOutput {
     public double energy;
     public double control;
@@ -16,9 +19,17 @@ public class AlgorithmOutput {
     @Override
     public String toString()
     {
-        return String.valueOf(energy)+ "\t|"+
-               String.valueOf(control)+ "\t\t|"+
-               String.valueOf(relativeEntropy)+ "\t\t|"+
+        return String.valueOf(energy)+ "\t| "+
+               String.valueOf(control)+ "\t\t| "+
+               String.valueOf(relativeEntropy)+ "\t\t\t| "+
                String.valueOf(relativePerformance);
+    }
+    
+    public List<String> convertToStringList(int index) {
+        return Arrays.asList(String.valueOf(index), 
+                             String.valueOf(energy),
+                             String.valueOf(control),
+                             String.valueOf(relativeEntropy),
+                             String.valueOf(relativePerformance));
     }
 }
