@@ -16,9 +16,9 @@ public class AlgorithmOutput {
     @Override
     public String toString()
     {
-        return "Energy: " +String.valueOf(energy)+ "\n"+
-               "Control: " +String.valueOf(control)+ "\n"+
-               "Relative Entropy: " +String.valueOf(relativeEntropy)+ "\n"+
-               "Relative Performance: " +String.valueOf(relativePerformance);
+        return String.valueOf(energy)+ "\t|"+
+               String.valueOf(control)+ "\t\t|"+
+               String.valueOf(relativeEntropy)+ "\t\t|"+
+               String.valueOf(relativePerformance);
     }
 }

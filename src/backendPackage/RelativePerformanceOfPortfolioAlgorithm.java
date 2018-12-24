@@ -38,9 +38,8 @@ public class RelativePerformanceOfPortfolioAlgorithm
         Vector<AlgorithmOutput> output = new Vector<AlgorithmOutput>(numberOfSteps);
 
         //TODO make something with last element add this if to prevent exception
+        System.out.println("time\t| energy\t| control\t| relative entropy\t| relative performance");
         for (int step = 0; step < numberOfSteps - 1; ++step) {
-            System.out.println("Results for time = "+step);
-            
             AlgorithmOutput element = new AlgorithmOutput();
             element.control = calculateControl(step);
             element.energy = calculateEnergy(step);
@@ -48,7 +47,7 @@ public class RelativePerformanceOfPortfolioAlgorithm
             element.relativePerformance = element.control + element.energy + element.relativeEntropy;
             output.add(element);
             //TODO save to File
-            System.out.println(element.toString());
+            System.out.println(step+"\t|"+element.toString());
         }
         //return output.lastElement().relativePerformance; //TODO make something with last element to make it work again!
         return 0.0;
@@ -80,7 +79,9 @@ public class RelativePerformanceOfPortfolioAlgorithm
         for (int step = 0; step < numberOfSteps; ++step){
             double[] stockPricesForPortfolio = new double[sizeOfPortfolio];
             for(int stockIndex = 0; stockIndex < sizeOfPortfolio; ++stockIndex) {
-                stockPricesForPortfolio[stockIndex] = stockPriceSimulators.get(stockIndex).getStockPrice(step, numberOfSteps);
+                double simulatedStockPrice = stockPriceSimulators.get(stockIndex).getStockPrice(step, numberOfSteps);
+                System.out.println("Simulated stock price for stock index["+stockIndex+"] in time("+step+") = "+simulatedStockPrice);
+                stockPricesForPortfolio[stockIndex] = simulatedStockPrice;
             }
             double sumOfStockPrices = DoubleStream.of(stockPricesForPortfolio).sum();
             for(int stockIndex = 0; stockIndex < sizeOfPortfolio; ++stockIndex) {

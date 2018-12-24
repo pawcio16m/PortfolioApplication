@@ -30,6 +30,7 @@ public class ResultCalculator implements IResultCalculator
             returnOfInvestment[stockDataIndex] = stockData.returnOfInvestment;
             volatilityRate[stockDataIndex] = stockData.volatilityRate;
             weightOfStocks[stockDataIndex] = stockData.weightOfStock;
+            ++stockDataIndex;
             System.out.println(stockData.toString());
         }
         

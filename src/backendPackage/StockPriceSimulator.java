@@ -18,20 +18,24 @@ public class StockPriceSimulator {
     public double getStockPrice(double executionTime, int numberOfSteps ){
         double sumOfPrices = 0;
         double delta_T = executionTime/numberOfSteps;///trzeva zaokr!!!!!!!!!!!!!!
+        System.out.println("delta_T = "+delta_T);
         double up = Math.exp(volatilityRate*delta_T);
+        System.out.println("up = "+up);
         double down = 1/up;
+        System.out.println("down = "+down);
         double probability = ( Math.exp(returnOfInvestment*delta_T)-down ) / (up-down);
-        for(int j=1; j<=NUMBER_OF_SIMULATION; j++) {
+        System.out.println("probality = "+probability);
+        for(int simulationStep = 0; simulationStep < NUMBER_OF_SIMULATION; ++simulationStep) {
             double price = actualValue;
             Random generator = new Random();
-            for (int i = 1; i <= numberOfSteps; i++) {
+            for (int step = 0; step < numberOfSteps; ++step) {
                 if (probability> generator.nextDouble()) {
                     price = price * up;
                 } else {
                     price = price * down;
                 }
             }
-            sumOfPrices=sumOfPrices+price;
+            sumOfPrices += price;
         }
         return sumOfPrices / NUMBER_OF_SIMULATION;
     }
